@@ -1,0 +1,6 @@
+Changes
+Makefile.PL
+MANIFEST
+README
+t/Text-FromAny.t
+lib/Text/FromAny.pm
