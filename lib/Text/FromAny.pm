@@ -53,7 +53,7 @@ has '_fileType' => (
     );
 
 # Ensure file exists during construction
-sub BUILDER
+sub BUILD
 {
     my $self = shift;
 
@@ -109,11 +109,24 @@ sub text
         }
         elsif($ftype eq 'rtf')
         {
-            $text = $self->_getFromFileExtract();
+            $text = $self->_getFromRTF();
+        }
+        elsif($ftype eq 'docx')
+        {
+            $text = $self->_getFromDocx();
         }
         elsif($ftype eq 'html')
         {
             $text = $self->_getFromHTML();
+        }
+        elsif(defined $ftype)
+        {
+            die("Text::FromAny: Unknown detected filetype: $ftype\n");
+        }
+
+        if(defined $text)
+        {
+            $text =~ s/\r//g;
         }
     }
     catch
@@ -142,7 +155,10 @@ sub _getFromPDF
 sub _getFromDoc
 {
     my $self = shift;
-    return get_all_text($self->file);
+    my $text = get_all_text($self->file);
+    $text =~ s/(\r|\r\n)/\n/g;
+    $text =~ s/\n$//;
+    return $text;
 }
 
 # Retrieve text from an "Office Open XML" file
@@ -153,8 +169,13 @@ sub _getFromDocx
     my $xml = $self->_readFileInZIP('word/document.xml');
     return if not defined $xml;
 
+    # Strip formatting newlines in the XML
+    $xml =~ s/\n//g;
     # Convert XML newlines to real ones
-    $xml =~ s/<w:p[^>]*w:rsidRDefault[^>]+>/\n/g;
+    if(not $xml =~ s/<w:p[^>]*w:rsidRDefault[^>]+>/\n/g)
+    {
+        $xml =~ s/<\/w:p>/\n/g;
+    }
     # Remove tags
     $xml =~ s/<[^>]+>//g;
 
@@ -222,7 +243,8 @@ sub _getFromRTF
 sub _getFromRaw
 {
     my $self = shift;
-    open(my $in,'<',$self->file);
+    open(my $in,'<',$self->file) or carp("Failed to open ".$self->file.": ".$!);
+    return if not $in;
     local $/ = undef;
     my $text = <$in>;
     close($in);
@@ -243,6 +265,10 @@ sub _getFromODT_SXW_XML
     my $self = shift;
     my $xml  = shift;
 
+    # Strip formatting newlines in the XML
+    $xml =~ s/\n//g;
+    # Strip first text:p
+    $xml =~ s/<text:p[^>]*>//;
     # Convert XML newlines to real ones
     $xml =~ s/<text:p[^>]*>/\n/g;
     # Remove tags
@@ -311,11 +337,13 @@ sub _getTypeFromMIME
     my %mimeMap = (
         'application/pdf' => 'pdf',
         'application/msword' => 'doc',
+        'application/vnd.ms-office' => 'doc',
         'application/vnd.oasis.opendocument.text' => 'odt',
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => 'docx',
         'application/vnd.sun.xml.writer' => 'sxw',
         'text/plain' => 'txt',
         'text/html' => 'html',
+        'text/rtf' => 'rtf',
         'application/xhtml+xml' => 'html',
     );
     try
@@ -324,12 +352,13 @@ sub _getTypeFromMIME
         $type = $mime->checktype_filename($self->file);
         if ($type)
         {
+            chomp($type);
             $type =~ s/;.*//g;
         }
     };
 
     # Try to get mimetype from the zip
-    if($type eq 'application/zip')
+    if(defined $type && $type eq 'application/zip')
     {
         $type = $self->_readFileInZIP('mimetype');
         if ($type)
@@ -339,7 +368,7 @@ sub _getTypeFromMIME
         }
     }
 
-    if ($mimeMap{$type})
+    if (defined $type && $mimeMap{$type})
     {
         return $mimeMap{$type};
     }
