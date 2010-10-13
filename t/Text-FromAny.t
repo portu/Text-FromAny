@@ -1,15 +1,50 @@
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl Text-FromAny.t'
+use Test::More;
 
-#########################
+my %fileToTextMap = (
+    'test.txt' => {
+        text => "Test file for Text::FromAny\n\nTXT version\n",
+        type => 'txt',
+    },
+    'test.doc' => {
+        text => "Test file for Text::FromAny\n\nDOC version",
+        type => 'doc',
+    },
+    'test.docx' => {
+        text => "Test file for Text::FromAny\n\nDOCx version\n",
+        type => 'docx',
+    },
+    'test.odt' => {
+        text => "Test file for Text::FromAny\n\nODT version",
+        type => 'odt',
+    },
+    'test.sxw' => {
+        text => "Test file for Text::FromAny\n\nOOo legacy SXW version",
+        type => 'sxw',
+    },
+    'test.rtf' => {
+        text => "Test file for Text::FromAny\n\nRTF version",
+        type => 'rtf',
+    },
+);
 
-# change 'tests => 1' to 'tests => last_test_to_print';
+plan tests => (keys(%fileToTextMap)* 3)+1;
+use_ok('Text::FromAny');
 
-use Test::More tests => 1;
-BEGIN { use_ok('Text::FromAny') };
+foreach my $f (keys %fileToTextMap)
+{
+    testFromFile($f, $fileToTextMap{$f});
+}
 
-#########################
-
-# Insert your test code below, the Test::More module is use()ed here so read
-# its man page ( perldoc Test::More ) for help writing this test script.
-
+sub testFromFile
+{
+    my $file = shift;
+    $file = 't/data/'.$file;
+    my $info = shift;
+    my $t = Text::FromAny->new(file => $file);
+    isa_ok($t,'Text::FromAny','Ensure Text::FromAny is correct');
+    my $typeOK = is($t->_fileType, $info->{type});
+    SKIP: {
+        skip('Text loaded properly'.$file,1) if not $typeOK;
+        is($t->text, $info->{text}, 'Text loaded properly');
+    };
+}
