@@ -22,7 +22,7 @@ my %fileToTextMap = (
         type => 'sxw',
     },
     'test.rtf' => {
-        text => "Test file for Text::FromAny\n\nRTF version",
+        text => "Test file for Text::FromAny\n\n RTF  version\n",
         type => 'rtf',
     },
 );

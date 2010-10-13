@@ -30,8 +30,9 @@ use Text::Extract::Word qw(get_all_text);
 use OpenOffice::OODoc 2.101;
 use File::LibMagic;
 use Archive::Zip;
-use RTF::Lexer qw(PTEXT ENBIN ENHEX CSYMB);
+use RTF::TEXT::Converter;
 use HTML::FormatText::WithLinks;
+use File::Spec;
 
 our $VERSION = '0.1';
 
@@ -208,34 +209,20 @@ sub _getFromRTF
 {
     my $self = shift;
     my $file = $self->file;
-    # ---
-    # Begin code taken from File::Extract::RTF, original license is
-    # the same as this library.
-    # This snippet is: Copyright (c) 2005 Daisuke Maki <dmaki@cpan.org>
-    #
-    # The reason this is copied here, rather than simply using the CPAN
-    # module is that it has troubles installing on modern platforms,
-    # and it contains a load of dependencies that really is not
-    # useful when this little snippet is all that's needed.
-    # ---
-    my $p = RTF::Lexer->new(in => $file);
+    my $text = '';
 
-    my $text;
-    my $token = '';
-    do {
-        $token = $p->get_token;
+    # RTF::TEXT::Converter spews some errors to STDERR that we don't need,
+    # so we 
+    local *STDERR;
+    open(STDERR,'>','/dev/null');
+    try
+    {
+        my $p = RTF::TEXT::Converter->new( output => \$text );
 
-        if ($token->[0] == ENHEX) {
-            $text .= pack('H2', $token->[1]);
-        } elsif ($token->[0] == CSYMB && $token->[1] =~ /^\s+$/) {
-            $text .= $token->[1];
-        } elsif ($token->[0] == PTEXT || $token->[0] == ENBIN) {
-            $text .= $token->[1];
-        }
-    } until $p->is_stop_token($token);
-    # ---
-    # End code from File::Extract::RTF
-    # ---
+        open(my $in, '<', $file);
+        $p->parse_stream($in);
+        close($in);
+    };
     return $text;
 }
 
