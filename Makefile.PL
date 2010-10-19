@@ -12,7 +12,7 @@ WriteMakefile(
         'OpenOffice::OODoc'           => '2.101',
         'File::LibMagic'              => 0,
         'Archive::Zip'                => 0,
-        'RTF::TEXT::Converter'        => 0,
+        'RTF::Parser'                 => '1.09',
         'HTML::FormatText::WithLinks' => 0,
     }, # e.g., Module::Name => 1.1
     ($] >= 5.005 ?     ## Add these new keywords supported since 5.005
