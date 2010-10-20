@@ -242,8 +242,26 @@ sub _getFromRaw
 sub _getFromHTML
 {
     my $self = shift;
-    my $formatText = HTML::FormatText::WithLinks->new( footnote => '' );
-    return $formatText->parse_file($self->file);
+    my $formatText = HTML::FormatText::WithLinks->new(
+		before_link => '',
+		after_link => '',
+		unique_links => 1,
+		footnote => '%l',
+	);
+	my $text = $formatText->parse_file($self->file);
+	# Remove additional formatting added by HTML::FormatText::WithLinks
+	my $result = '';
+
+	# Remove whitespace prefix on each line
+	foreach my $l (split(/\n/,$text))
+	{
+		$l =~ s/^ {1,4}//;
+		$result .= $l."\n";
+	}
+
+	# Remove newline padding at the end
+	$result =~ s/\n+$//g;
+	return $result;
 }
 
 # Simple regex cleaner and formatted for ODT and SXW
