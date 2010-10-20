@@ -25,6 +25,14 @@ my %fileToTextMap = (
         text => "Test file for Text::FromAny\n\n RTF  version\n",
         type => 'rtf',
     },
+	'test-basic.html' => {
+		text => "Test file for Text::FromAny\n\nHTML version",
+		type => 'html',
+	},
+	'test-extraFormat.html' => {
+		text => "Test file for Text::FromAny\nWith four spaces: |    |\nAnd a link to our git repo plus our issue tracker and lastly a\nduplicate of the link to our git repo.\n\nhttp://github.com/portu/Text-FromAny\nhttp://github.com/portu/Text-FromAny/issues",
+		type => 'html',
+	},
 );
 
 plan tests => (keys(%fileToTextMap)* 3)+1;
