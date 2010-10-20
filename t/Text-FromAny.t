@@ -1,27 +1,27 @@
 use Test::More;
 
 my %fileToTextMap = (
-    'test.txt' => {
+    'test-basic.txt' => {
         text => "Test file for Text::FromAny\n\nTXT version\n",
         type => 'txt',
     },
-    'test.doc' => {
+    'test-basic.doc' => {
         text => "Test file for Text::FromAny\n\nDOC version",
         type => 'doc',
     },
-    'test.docx' => {
+    'test-basic.docx' => {
         text => "Test file for Text::FromAny\n\nDOCx version\n",
         type => 'docx',
     },
-    'test.odt' => {
+    'test-basic.odt' => {
         text => "Test file for Text::FromAny\n\nODT version",
         type => 'odt',
     },
-    'test.sxw' => {
+    'test-basic.sxw' => {
         text => "Test file for Text::FromAny\n\nOOo legacy SXW version",
         type => 'sxw',
     },
-    'test.rtf' => {
+    'test-basic.rtf' => {
         text => "Test file for Text::FromAny\n\n RTF  version\n",
         type => 'rtf',
     },
