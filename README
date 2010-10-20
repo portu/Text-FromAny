@@ -1,16 +1,7 @@
-Text-FromAny version 0.01
-=========================
+Text::FromAny
+=============
 
-The README is used to introduce the module and provide instructions on
-how to install the module, any machine dependencies it may have (for
-example C compilers and installed libraries) and any other information
-that should be provided before the module is installed.
-
-A README file is required for CPAN modules since CPAN extracts the
-README file from a module distribution so that people browsing the
-archive can use it get an idea of the modules uses. It is usually a
-good idea to provide version information here so that people can
-decide whether fixes for the module are worth downloading.
+Text::FromAny - a module to read pure text from a vareiety of formats
 
 INSTALLATION
 
@@ -25,14 +16,39 @@ DEPENDENCIES
 
 This module requires these other modules and libraries:
 
-  blah blah blah
+	Any::Moose
+	Try::Tiny
+	Text::Extract::Word
+	OpenOffice::OODoc
+	File::LibMagic
+	Archive::Zip
+	RTF::Parser (1.09 or later)
+	HTML::FormatText::WithLinks
+
+DOCUMENTATION
+
+Documentation is supplied as POD in the module. See lib/Text/FromAny.pm
 
 COPYRIGHT AND LICENCE
-
-Put the correct copyright and licence information here.
 
 Copyright (C) 2010 by Eskild Hustvedt
 
 This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself, either Perl version 5.10.1 or,
-at your option, any later version of Perl 5 you may have available.
+it under the terms of either:
+
+    a) the GNU General Public License as published by the Free
+    Software Foundation; either version 3, or (at your option) any
+    later version, or
+    b) the "Artistic License" which comes with this Kit.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See either
+the GNU General Public License or the Artistic License for more details.
+
+You should have received a copy of the Artistic License
+in the file named "COPYING.artistic".  If not, I'll be glad to provide one.
+
+You should also have received a copy of the GNU General Public License
+along with this library in the file named "COPYING.gpl". If not,
+see <http://www.gnu.org/licenses/>.
