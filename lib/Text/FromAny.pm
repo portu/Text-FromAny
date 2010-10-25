@@ -34,7 +34,7 @@ use RTF::TEXT::Converter;
 use HTML::FormatText::WithLinks;
 use File::Spec;
 
-our $VERSION = '0.1';
+our $VERSION = '0.11';
 
 has 'file' => (
     is => 'rw',
