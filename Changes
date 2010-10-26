@@ -1,5 +1,8 @@
 Revision history for Perl extension Text::FromAny.
 
+0.12
+	- Actually include test data (duh)
+
 0.11
 	- Fixed tests not being able to locate their data in some cases
 
