@@ -35,6 +35,10 @@ my %fileToTextMap = (
 		text => "Test file for Text::FromAny\n\nHTML version",
 		type => 'html',
 	},
+	'test-basic.pdf' => {
+		text => "Test file for Text::FromAny\n\nPDF version",
+		type => 'pdf',
+	},
 	'test-extraFormat.html' => {
 		text => "Test file for Text::FromAny\nWith four spaces: |    |\nAnd a link to our git repo plus our issue tracker and lastly a\nduplicate of the link to our git repo.\n\nhttp://github.com/portu/Text-FromAny\nhttp://github.com/portu/Text-FromAny/issues",
 		type => 'html',
@@ -57,6 +61,10 @@ sub testFromFile
 	{
 		BAIL_OUT("Failed to locate test files");
 	}
+	elsif(not -e $file)
+	{
+		BAIL_OUT("$file: does not exist");
+	}
     my $info = shift;
     my $t = Text::FromAny->new(file => $file);
     isa_ok($t,'Text::FromAny','Ensure Text::FromAny is correct');
@@ -74,18 +82,20 @@ sub pathToFile
 	{
 		return catfile($dataPath,$file);
 	}
-	my @paths = (dirname(__FILE__), $FindBin::RealBin, catfile('data'),catfile('t','data'));
+	my @paths = (dirname(__FILE__), $FindBin::RealBin);
+	my @subPaths = (curdir(), 'data', catfile('t/data'));
 	foreach my $p (@paths)
 	{
-		if (-e catfile($p,$file))
+		foreach my $e (@subPaths)
 		{
-			$dataPath = $p;
-			return catfile($p,$file);
-		}
-		elsif(-e catfile(curdir(),$p,$file))
-		{
-			$dataPath = catfile(curdir(),$p);
-			return catfile(curdir(),$p,$file);
+			my $try = catfile($p,$e,$file);
+			if (-e $try)
+			{
+				$dataPath = catfile($p,$e);
+				return $try;
+			}
 		}
 	}
+	<STDIN>;
+	return undef;
 }
