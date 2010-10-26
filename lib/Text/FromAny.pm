@@ -33,8 +33,10 @@ use Archive::Zip;
 use RTF::TEXT::Converter;
 use HTML::FormatText::WithLinks;
 use File::Spec;
+use CAM::PDF;
+use CAM::PDF::PageText;
 
-our $VERSION = '0.11';
+our $VERSION = '0.12';
 
 has 'file' => (
     is => 'rw',

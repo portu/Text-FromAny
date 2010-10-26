@@ -14,6 +14,7 @@ WriteMakefile(
         'Archive::Zip'                => 0,
         'RTF::Parser'                 => '1.09',
         'HTML::FormatText::WithLinks' => 0,
+		'CAM::PDF'                    => 0,
     }, # e.g., Module::Name => 1.1
     ($] >= 5.005 ?     ## Add these new keywords supported since 5.005
       (ABSTRACT_FROM  => 'lib/Text/FromAny.pm', # retrieve abstract from module
