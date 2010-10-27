@@ -40,7 +40,7 @@ use IPC::Open3 qw(open3);
 our $VERSION = '0.20';
 
 has 'file' => (
-    is => 'rw',
+    is => 'ro',
     isa => 'Str',
     required => 1,
     );
@@ -65,6 +65,13 @@ has '_pdfToText' => (
 	isa => 'Bool',
 	builder => '_checkPdfToText',
 	lazy => 1
+	);
+has '_content' => (
+	is => 'rw',
+	);
+has '_readState' => (
+	is => 'rw',
+	isa => 'Maybe[Str]',
 	);
 
 # Ensure file exists during construction
@@ -92,13 +99,16 @@ sub text
 {
     my $self = shift;
     my $ftype = $self->detectedType;
+    my $text = $self->_getRead();
     
+	if(defined $text)
+	{
+		return $text;
+	}
     if(not defined $ftype)
     {
         return undef;
     }
-
-    my $text;
 
     try
     {
@@ -142,12 +152,15 @@ sub text
         if(defined $text)
         {
             $text =~ s/(\r|\f)//g;
+			$self->_content($text);
         }
     }
     catch
     {
         $text = undef;
     };
+
+	$self->_setRead($text);
 
     return $text;
 }
@@ -513,6 +526,45 @@ sub _guessType
     return;
 }
 
+# Saves "read" status in the object, so that we know for later reference
+# if we need to re-read the file.
+sub _setRead
+{
+	my $self = shift;
+	my $text = shift;
+	if(defined $text)
+	{
+		$self->_content($text);
+	}
+	$self->_readState($self->_getStateString);
+}
+
+# Retrieves the read file content as long as the read state equals the
+# previous read state, otherwise returns undef
+sub _getRead
+{
+	my $self = shift;
+	
+	if ($self->_readState && $self->_readState eq $self->_getStateString)
+	{
+		return $self->_content;
+	}
+	return;
+}
+
+# Retrieves the 'state string'. This is a string representation of
+# the internal state in the object that might have some effect on how
+# text gets read.
+#
+# Ie. if allowExternal or allowGuess has changed since we last read
+# a file, we read it again.
+sub _getStateString
+{
+	my $self = shift;
+	my $readState = join('-',$self->allowExternal,$self->allowGuess);
+	return $readState;
+}
+
 __PACKAGE__->meta->make_immutable;
 1;
 
@@ -550,9 +602,10 @@ construction.
 
 =item B<file>
 
-The file to read. B<MUST> be supplied during runtime. Can be any of the
-supported formats. If it is not of any supported format, or an unknown format,
-the object will still work, though ->text will return undef.
+The file to read. B<MUST> be supplied during construction time (and can not be
+changed later). Can be any of the supported formats. If it is not of any
+supported format, or an unknown format, the object will still work, though
+->text will return undef.
 
 =item B<allowGuess>
 
@@ -586,6 +639,11 @@ that behaviour, rather than relying on the defaults.
 
 Returns the text contained in the file, or undef if the file format is unknown
 or unsupported.
+
+Normally Text::FromAny will only read the file once, and then cache the text.
+However if you change the value of either the allowGuess or allowExternal
+attributes, Text::FromAny will re-read the file, as those can affect how a file
+is read.
 
 =item B<detectedType>
 
