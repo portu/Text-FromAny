@@ -36,8 +36,9 @@ my %fileToTextMap = (
 		type => 'html',
 	},
 	'test-basic.pdf' => {
-		text => "Test file for Text::FromAny\n\nPDF version",
+		text => "Test file for Text::FromAny\n\nPDF version\n",
 		type => 'pdf',
+		needsPdfToText => 1,
 	},
 	'test-extraFormat.html' => {
 		text => "Test file for Text::FromAny\nWith four spaces: |    |\nAnd a link to our git repo plus our issue tracker and lastly a\nduplicate of the link to our git repo.\n\nhttp://github.com/portu/Text-FromAny\nhttp://github.com/portu/Text-FromAny/issues",
@@ -66,10 +67,18 @@ sub testFromFile
 		BAIL_OUT("$file: does not exist");
 	}
     my $info = shift;
-    my $t = Text::FromAny->new(file => $file);
+	my $allowExternal = $info->{needsPdfToText} ? 1 : 0;
+    my $t = Text::FromAny->new(file => $file, allowExternal => $allowExternal);
     isa_ok($t,'Text::FromAny','Ensure Text::FromAny is correct');
     my $typeOK = is($t->_fileType, $info->{type});
     SKIP: {
+		if ($info->{needsPdfToText})
+		{
+			if(not hasPDFToText())
+			{
+				skip('pdftotext is not installed',1);
+			}
+		}
         skip('Text loaded properly'.$file,1) if not $typeOK;
         is($t->text, $info->{text}, 'Text loaded properly');
     };
@@ -98,4 +107,15 @@ sub pathToFile
 	}
 	<STDIN>;
 	return undef;
+}
+sub hasPDFToText
+{
+	foreach (split /:/, $ENV{PATH})
+	{
+		my $f = catfile($_,'pdftotext');
+		if (-x $f and not -d $f)
+		{
+			return 1;
+		}
+	}
 }

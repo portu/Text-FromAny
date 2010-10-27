@@ -32,11 +32,12 @@ use File::LibMagic;
 use Archive::Zip;
 use RTF::TEXT::Converter;
 use HTML::FormatText::WithLinks;
-use File::Spec;
+use File::Spec::Functions;
 use CAM::PDF;
 use CAM::PDF::PageText;
+use IPC::Open3 qw(open3);
 
-our $VERSION = '0.12';
+our $VERSION = '0.20';
 
 has 'file' => (
     is => 'rw',
@@ -48,12 +49,23 @@ has 'allowGuess' => (
     isa => 'Str',
     default => 1,
     );
+has 'allowExternal' => (
+	is => 'rw',
+	isa => 'Str',
+	default => 0,
+	);
 has '_fileType' => (
     is => 'rw',
     isa => 'Maybe[Str]',
     builder => '_getType',
     lazy => 1,
     );
+has '_pdfToText' => (
+	is => 'ro',
+	isa => 'Bool',
+	builder => '_checkPdfToText',
+	lazy => 1
+	);
 
 # Ensure file exists during construction
 sub BUILD
@@ -129,7 +141,7 @@ sub text
 
         if(defined $text)
         {
-            $text =~ s/\r//g;
+            $text =~ s/(\r|\f)//g;
         }
     }
     catch
@@ -144,6 +156,23 @@ sub text
 sub _getFromPDF
 {
     my $self = shift;
+	my $text = $self->_getFromPDF_CAMPDF();
+	if ($text =~ /(\w|\d)/)
+	{
+		return $text;
+	}
+	my $pdftotext = $self->_getFromPDF_pdftotext;
+	if ($pdftotext)
+	{
+		return $pdftotext;
+	}
+	return $text;
+}
+
+# Retrieve text from a PDF file using CAM::PDF
+sub _getFromPDF_CAMPDF
+{
+	my $self = shift;
     my $f = CAM::PDF->new($self->file);
     my $text = '';
     foreach(1..$f->numPages())
@@ -152,6 +181,50 @@ sub _getFromPDF
         $text .= CAM::PDF::PageText->render($page);
     }
     return $text;
+}
+
+# Retrieve text from a PDF file using pdftotext (if we are allowed to, and it
+# is available)
+sub _getFromPDF_pdftotext
+{
+	my $self = shift;
+	if(not $self->allowExternal or not $self->_pdfToText)
+	{
+		return;
+	}
+	my $content = '';
+	try
+	{
+		my $pid = open3(my $in, my $out, my $err, 'pdftotext','-layout','-enc','UTF-8',$self->file,'-') or die("Failed to open3() pdftotext: $!\n");
+		while(<$out>)
+		{
+			$content .= $_;
+		}
+		close($in) if $in;
+		close($out) if $out;
+		close($err) if $err;
+		waitpid($pid,0);
+		my $status = $? >> 8;
+		if ($status != 0)
+		{
+			$content = '';
+		}
+	};
+	return $content;
+}
+
+# Check if pdftotext is installed
+sub _checkPdfToText
+{
+	foreach (split /:/, $ENV{PATH})
+	{
+		my $f = catfile($_,'pdftotext');
+		if (-x $f and not -d $f)
+		{
+			return 1;
+		}
+	}
+	return 0;
 }
 
 # Retrieve text from a msword .doc file
@@ -479,6 +552,18 @@ detect the filetype it will fall back to guessing the filetype based upon
 the file extension. Set this to false to disable this.
 
 The default for I<allowGuess> is subject to change in later versions, so if
+you depend on it being either on or off, you are best off explicitly requesting
+that behaviour, rather than relying on the defaults.
+
+=item B<allowExternal>
+
+This is a boolean, defaulting to false. If the perl-based PDF reading method
+fails (L<PDF::CAM>), then Text::FromAny will fall back to calling the system
+L<pdftotext(1)> to get the text. L<PDF::CAM> reads most PDFs, but has troubles
+with a select few, and those can be handled by L<pdftotext(1)> from the
+Poppler library.
+
+The default for I<allowExternal> is subject to change in later versions, so if
 you depend on it being either on or off, you are best off explicitly requesting
 that behaviour, rather than relying on the defaults.
 
