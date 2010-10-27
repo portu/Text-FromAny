@@ -2,7 +2,8 @@ Changes
 Makefile.PL
 MANIFEST
 README
-t/Text-FromAny.t
+t/01-reading.t
+t/02-state.t
 lib/Text/FromAny.pm
 t/data/test-basic.doc
 t/data/test-basic.docx

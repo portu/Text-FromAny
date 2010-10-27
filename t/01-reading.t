@@ -88,7 +88,6 @@ sub testFromFile
         is($t->text, $info->{text}, 'Text loaded properly');
     };
 }
-
 sub pathToFile
 {
 	my $file = shift;
@@ -110,7 +109,6 @@ sub pathToFile
 			}
 		}
 	}
-	<STDIN>;
 	return undef;
 }
 sub hasPDFToText
