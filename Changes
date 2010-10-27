@@ -4,6 +4,7 @@ Revision history for Perl extension Text::FromAny.
 	- Actually include test data (duh)
 	- Fixed pdf reading
 	- Added support for using pdftotext to read PDF files
+	- Added a method to get the detected filetype to the public API
 
 0.11
 	- Fixed tests not being able to locate their data in some cases

@@ -70,7 +70,7 @@ sub testFromFile
 	my $allowExternal = $info->{needsPdfToText} ? 1 : 0;
     my $t = Text::FromAny->new(file => $file, allowExternal => $allowExternal);
     isa_ok($t,'Text::FromAny','Ensure Text::FromAny is correct');
-    my $typeOK = is($t->_fileType, $info->{type});
+    my $typeOK = is($t->detectedType, $info->{type});
     SKIP: {
 		if ($info->{needsPdfToText})
 		{

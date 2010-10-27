@@ -55,7 +55,7 @@ has 'allowExternal' => (
 	default => 0,
 	);
 has '_fileType' => (
-    is => 'rw',
+    is => 'ro',
     isa => 'Maybe[Str]',
     builder => '_getType',
     lazy => 1,
@@ -91,7 +91,7 @@ sub BUILD
 sub text
 {
     my $self = shift;
-    my $ftype = $self->_fileType;
+    my $ftype = $self->detectedType;
     
     if(not defined $ftype)
     {
@@ -150,6 +150,15 @@ sub text
     };
 
     return $text;
+}
+
+# Returns the detected filetype.
+# This is defined as a method because it should not be accepted as a
+# construction parameters.
+sub detectedType
+{
+	my $self = shift;
+	return $self->_fileType;
 }
 
 # Retrieve text from a PDF file
@@ -577,6 +586,20 @@ that behaviour, rather than relying on the defaults.
 
 Returns the text contained in the file, or undef if the file format is unknown
 or unsupported.
+
+=item B<detectedType>
+
+Returns the detected filetype (or undef if unknown or unsupported).
+The filetype is returned as a string, and can be any of the following:
+
+	pdf  => PDF
+	odt  => OpenDocument text
+	sxw  => Legacy OpenOffice.org Writer
+	doc  => msword
+	docx => "Open XML"
+	rtf  => RTF
+	txt  => Cleartext
+	html => HTML (or XHTML)
 
 =back
 
