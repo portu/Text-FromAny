@@ -13,3 +13,4 @@ t/data/test-basic.rtf
 t/data/test-basic.sxw
 t/data/test-basic.txt
 t/data/test-extraFormat.html
+t/data/test-basic-pdftotext.pdf

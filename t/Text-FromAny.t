@@ -36,6 +36,11 @@ my %fileToTextMap = (
 		type => 'html',
 	},
 	'test-basic.pdf' => {
+		text => "Test file for Text::FromAny\nPDF version\n",
+		type => 'pdf',
+		needsPdfToText => 0,
+	},
+	'test-basic-pdftotext.pdf' => {
 		text => "Test file for Text::FromAny\n\nPDF version\n",
 		type => 'pdf',
 		needsPdfToText => 1,
