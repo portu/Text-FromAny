@@ -1,5 +1,8 @@
 Revision history for Perl extension Text::FromAny.
 
+0.21
+	- Don't require perl 5.10
+
 0.20
 	- Actually include test data (duh)
 	- Fixed pdf reading
