@@ -47,8 +47,6 @@ catch
 	ok(1);
 };
 
-
-
 sub pathToFile
 {
 	my $file = shift;
