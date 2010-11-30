@@ -37,7 +37,7 @@ use CAM::PDF;
 use CAM::PDF::PageText;
 use IPC::Open3 qw(open3);
 
-our $VERSION = '0.20';
+our $VERSION = '0.21';
 
 has 'file' => (
     is => 'ro',
