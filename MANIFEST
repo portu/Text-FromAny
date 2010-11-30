@@ -2,6 +2,9 @@ Changes
 Makefile.PL
 MANIFEST
 README
+COPYING
+COPYING.artistic
+COPYING.gpl
 t/01-reading.t
 t/02-state.t
 lib/Text/FromAny.pm
