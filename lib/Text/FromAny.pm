@@ -486,6 +486,7 @@ sub _getTypeFromMagicDesc
         '^OpenOffice\.org.+Writer.+' => 'sxw',
         '^OpenDocument text$' => 'odt',
         '^PDF document.+$' => 'pdf',
+        '^Microsoft Office Document$' => 'doc',
     );
     try
     {
