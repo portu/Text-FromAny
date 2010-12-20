@@ -37,7 +37,7 @@ use CAM::PDF;
 use CAM::PDF::PageText;
 use IPC::Open3 qw(open3);
 
-our $VERSION = '0.21';
+our $VERSION = '0.22';
 
 has 'file' => (
     is => 'ro',
@@ -179,7 +179,7 @@ sub _getFromPDF
 {
     my $self = shift;
 	my $text = $self->_getFromPDF_CAMPDF();
-	if ($text =~ /(\w|\d)/)
+	if (defined $text && $text =~ /(\w|\d)/)
 	{
 		return $text;
 	}
@@ -197,10 +197,30 @@ sub _getFromPDF_CAMPDF
 	my $self = shift;
     my $f = CAM::PDF->new($self->file);
     my $text = '';
-    foreach(1..$f->numPages())
+    foreach my $p (1..$f->numPages())
     {
-        my $page = $f->getPageContentTree($_);
-        $text .= CAM::PDF::PageText->render($page);
+		my $errOut;
+		try
+		{
+			my $page = $f->getPageContentTree($p);
+			$text .= CAM::PDF::PageText->render($page);
+		}
+		catch
+		{
+			# Ok, so, CAM::PDF had a crash trying to render this page.
+			# If we can use pdftotext then we can just give up, and hand
+			# control over to it. If not, then we warn and continue.
+			if($self->allowExternal and $self->_pdfToText)
+			{
+				$errOut = 1;
+			}
+			else
+			{
+				chomp($_);
+				warn('CAM::PDF crashed when trying to extract from page '.$p.' ('.$_.') - skipping this page'."\n");
+			}
+		};
+		return if $errOut;
     }
     return $text;
 }

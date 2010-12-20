@@ -3,6 +3,7 @@ Revision history for Perl extension Text::FromAny.
 0.22
     - Fixed MSWord detection on systems where libmagic does not
         return it as "application/vnd.ms-office"
+	- Gracefully handle crashes in CAM::PDF
 
 0.21
 	- Don't require perl 5.10.1
