@@ -682,6 +682,20 @@ The filetype is returned as a string, and can be any of the following:
 
 =back
 
+=head1 DIAGNOSTICS
+
+=over
+
+=item CAM::PDF crashed when trying to extract from page ...
+
+This is caused by deficiencies in the L<CAM::PDF> PDF extraction library
+used by Text::FromAny when it tries to read some specific PDF files. The result
+is that a page will be missing from the text returned. If you set
+I<allowExternal> to true and have pdftotext available then Text::FromAny will
+fall back to using pdftotext in these cases (which works around the problem).
+
+=back
+
 =head1 BUGS AND LIMITATIONS
 
 None known.
