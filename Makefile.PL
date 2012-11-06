@@ -5,7 +5,7 @@ WriteMakefile(
     NAME              => 'Text::FromAny',
     VERSION_FROM      => 'lib/Text/FromAny.pm', # finds $VERSION
     PREREQ_PM         => {
-        'Any::Moose'                  => 0,
+        'Moo'                  => 0,
         'Try::Tiny'                   => 0,
         'Text::Extract::Word'         => 0,
         'OpenOffice::OODoc'           => '2.101',

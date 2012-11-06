@@ -23,7 +23,7 @@
 # along with this library in the file named "COPYING.gpl". If not,
 # see <http://www.gnu.org/licenses/>.
 package Text::FromAny;
-use Any::Moose;
+use Moo;
 use Carp qw(carp croak);
 use Try::Tiny;
 use Text::Extract::Word qw(get_all_text);
@@ -41,28 +41,23 @@ our $VERSION = '0.22';
 
 has 'file' => (
     is => 'ro',
-    isa => 'Str',
     required => 1,
     );
 has 'allowGuess' => (
     is => 'rw',
-    isa => 'Str',
-    default => 1,
+    default => sub { 1 },
     );
 has 'allowExternal' => (
 	is => 'rw',
-	isa => 'Str',
-	default => 0,
+	default => sub { 0 },
 	);
 has '_fileType' => (
     is => 'ro',
-    isa => 'Maybe[Str]',
     builder => '_getType',
     lazy => 1,
     );
 has '_pdfToText' => (
 	is => 'ro',
-	isa => 'Bool',
 	builder => '_checkPdfToText',
 	lazy => 1
 	);
@@ -71,7 +66,6 @@ has '_content' => (
 	);
 has '_readState' => (
 	is => 'rw',
-	isa => 'Maybe[Str]',
 	);
 
 # Ensure file exists during construction
@@ -381,7 +375,7 @@ sub _getFromHTML
 	return $result;
 }
 
-# Simple regex cleaner and formatted for ODT and SXW
+# Simple regex cleaner and formatter for ODT and SXW
 sub _getFromODT_SXW_XML
 {
     my $self = shift;
