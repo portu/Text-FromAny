@@ -1,3 +1,4 @@
+# vim: set ft=perl :
 use strict;
 use warnings;
 use Test::More;
@@ -52,7 +53,9 @@ my %fileToTextMap = (
 );
 
 plan tests => (keys(%fileToTextMap)* 3)+1;
-use_ok('Text::FromAny');
+no strict;
+use_ok($module);
+use strict;
 
 foreach my $f (keys %fileToTextMap)
 {
@@ -73,8 +76,18 @@ sub testFromFile
 	}
     my $info = shift;
 	my $allowExternal = $info->{needsPdfToText} ? 1 : 0;
-    my $t = Text::FromAny->new(file => $file, allowExternal => $allowExternal);
-    isa_ok($t,'Text::FromAny','Ensure Text::FromAny is correct');
+    my $t;
+    no strict;
+    if ($module eq 'Text::FromAny')
+    {
+        $t = Text::FromAny->new(file => $file, allowExternal => $allowExternal);
+    }
+    else
+    {
+        $t = Text::FromAny::Lazy->new(file => $file, allowExternal => $allowExternal);
+    }
+    isa_ok($t,$module,'Ensure '.$module.' is correct');
+    use strict;
     my $typeOK = is($t->detectedType, $info->{type});
     SKIP: {
 		if ($info->{needsPdfToText})

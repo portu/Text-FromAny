@@ -1,3 +1,4 @@
+# vim: set ft=perl :
 use strict;
 use warnings;
 use Test::More;
@@ -6,11 +7,31 @@ use File::Spec::Functions;
 use File::Basename qw(dirname);
 use Try::Tiny;
 
-plan tests => 20;
-use_ok('Text::FromAny');
+my $dataPath;
 
-my $obj = Text::FromAny->new(file => pathToFile('test-basic.txt'), allowExternal => 0, allowGuess => 1);
-isa_ok($obj,'Text::FromAny','Ensure Text::FromAny is correct');
+plan tests => 20;
+
+no strict;
+use_ok($module);
+
+my $obj;
+try
+{
+    if ($module eq 'Text::FromAny')
+    {
+        $obj = Text::FromAny->new(file => pathToFile('test-basic.txt'), allowExternal => 0, allowGuess => 1);
+    }
+    else
+    {
+        $obj = Text::FromAny::Lazy->new(file => pathToFile('test-basic.txt'), allowExternal => 0, allowGuess => 1);
+    }
+}
+catch
+{
+    warn($_);
+};
+isa_ok($obj,$module,'Ensure '.$module.' is correct');
+use strict;
 
 is($obj->allowGuess,1,'allowGuess should be as supplied to constructor');
 is($obj->allowExternal,0,'allowExternal should be as supplied to constructor');
@@ -46,10 +67,13 @@ catch
 {
 	ok(1);
 };
-
 sub pathToFile
 {
 	my $file = shift;
+	if ($dataPath)
+	{
+		return catfile($dataPath,$file);
+	}
 	my @paths = (dirname(__FILE__), $FindBin::RealBin);
 	my @subPaths = (curdir(), 'data', catfile('t/data'));
 	foreach my $p (@paths)
@@ -59,6 +83,7 @@ sub pathToFile
 			my $try = catfile($p,$e,$file);
 			if (-e $try)
 			{
+				$dataPath = catfile($p,$e);
 				return $try;
 			}
 		}
